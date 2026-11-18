@@ -19,6 +19,10 @@ OK = "  OK   "
 WARN = "  WARN "
 FAIL = "  FAIL "
 
+# Project source root, needed both by the import checks and by the source-level
+# compatibility scan below.
+SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'MANGER', 'src')
+
 blocking = []
 training = []
 warnings = []
@@ -89,16 +93,28 @@ except Exception:
 print("\n[compatibility traps]")
 
 import collections
+# The interpreter losing the alias only matters if the source still uses it.
+# Checking the source too avoids a false alarm after main.py was fixed.
+main_py = os.path.join(SRC, 'main.py')
+source_ok = False
+if os.path.exists(main_py):
+    with open(main_py, encoding='utf-8', errors='ignore') as fh:
+        src = fh.read()
+    source_ok = 'collections.abc.Mapping' in src
+
 if hasattr(collections, 'Mapping'):
     line(OK, "collections.Mapping exists")
+elif source_ok:
+    line(OK, "collections.Mapping gone, but src/main.py already uses "
+              "collections.abc.Mapping")
 else:
-    line(FAIL, "collections.Mapping is gone (Python 3.10+)")
-    print("         src/main.py does `isinstance(v, collections.Mapping)` in")
-    print("         recursive_dict_update. Without a shim, main.py raises")
-    print("         AttributeError before training starts. The offline checks")
-    print("         do not touch main.py, so they still run.")
-    print("         Fix on 3.10+: use collections.abc.Mapping.")
-    training.append(("collections.Mapping", "removed in Python 3.10"))
+    line(FAIL, "collections.Mapping is gone and src/main.py still uses it")
+    print("         main.py does `isinstance(v, collections.Mapping)` inside")
+    print("         recursive_dict_update. On 3.10+ that raises AttributeError")
+    print("         before training starts. The offline checks do not touch")
+    print("         main.py, so they still run.")
+    print("         Fix: import collections.abc and use collections.abc.Mapping.")
+    training.append(("collections.Mapping", "src/main.py still uses the old alias"))
 
 if numpy is not None:
     major = int(numpy.__version__.split('.')[0])
@@ -125,7 +141,6 @@ if torch is not None:
 # Can the modules under test even be imported?
 # ---------------------------------------------------------------------------
 print("\n[project imports]  (offline subset; no SC2 needed)")
-SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'MANGER', 'src')
 sys.path.insert(0, SRC)
 for mod in ('modules.layer.rnd', 'modules.layer.multi_rnd',
             'utils.spatial_utils'):

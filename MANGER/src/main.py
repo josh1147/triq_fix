@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import collections
+import collections.abc
 from os.path import dirname, abspath, join
 from copy import deepcopy
 from sacred import Experiment, SETTINGS
@@ -56,7 +57,9 @@ def _get_config(params, arg_name, subfolder):
 
 def recursive_dict_update(d, u):
     for k, v in u.items():
-        if isinstance(v, collections.Mapping):
+        # collections.Mapping was removed in Python 3.10; collections.abc.Mapping
+        # is the supported spelling and works on 3.3+.
+        if isinstance(v, collections.abc.Mapping):
             d[k] = recursive_dict_update(d.get(k, {}), v)
         else:
             d[k] = v
