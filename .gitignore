@@ -1,0 +1,36 @@
+# Experiment artefacts.
+# results/models holds ~379 MB of checkpoints trained with the pre-change code.
+# The RND parameter set changed (fusion and coordinator removed, per-branch
+# inputs added), so those weights cannot be loaded strictly by the current code.
+# Keeping them out also keeps clone times sane.
+MANGER/results/
+MANGER/logs/
+
+# Runtime logs and one-off artefacts.
+log1.txt
+log2.txt
+pytorch_install.log
+triq_training_*.txt
+logs/
+
+# Archives. The zips in this directory are local backups, not source.
+*.zip
+
+# Build helpers.
+_make_archive.py
+
+# Python.
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Editor and OS.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
