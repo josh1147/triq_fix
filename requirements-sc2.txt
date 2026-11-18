@@ -1,0 +1,39 @@
+# StarCraft II extras. Only needed on the machine that actually trains.
+#
+#     uv pip install -r requirements-sc2.txt
+#
+# These are kept out of requirements.txt so that the offline checks in
+# verify_*.py can run anywhere, including machines with no SC2 and no network
+# access to GitHub.
+#
+# ---------------------------------------------------------------------------
+# Ordering matters here: pysc2 3.0 and sacred 0.8.2 both predate protobuf 4, so
+# protobuf must stay on the 3.20 line, and it must be installed before pysc2
+# pulls in a newer one.
+# ---------------------------------------------------------------------------
+
+protobuf==3.20.2
+pysc2==3.0.0
+
+# pysc2 3.0.0 pulls numpy>=1.16 with no upper bound, and a resolver that sees
+# only this file will happily pick numpy 2.x. That breaks the core package
+# (see requirements.txt: matplotlib.pyplot.xcorr). Pin it here too so installing
+# this file alone cannot produce a broken environment.
+numpy<2
+
+# SMAC ships the reward/observation wrappers and the map registry. Install from
+# source because there is no PyPI release.
+smac @ git+https://github.com/oxwhirl/smac.git
+
+# ---------------------------------------------------------------------------
+# Not a pip package: the StarCraft II client itself.
+#
+#   bash MANGER/install_sc2.sh            # downloads SC2 4.10 + SMAC maps
+#   export SC2PATH=/root/autodl-tmp/StarCraftII
+#
+# src/envs/__init__.py defaults SC2PATH to /root/autodl-tmp/StarCraftII on
+# Linux, which is the AutoDL layout. Change it there or set the env var.
+#
+# Custom maps (MMM3 / MMM4) also need:
+#   bash MANGER/install_mmm3_map.sh
+# ---------------------------------------------------------------------------

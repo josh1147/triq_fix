@@ -1,0 +1,36 @@
+lr
+learning rate for Q-network 1e-3
+lrrnd
+learning rate for RND-network 1e-3
+optimizer
+type of optimizer Adam
+batch size
+batch size for training 128
+batch size run
+parallel env collecting data 8
+buffer size
+buffer size for training 5000
+mixing embed dim
+embed dim for mixing network 32
+γ
+reward decay factor 0.99
+M
+total steps for training 4000000
+Mtarget
+interval step for update target network 200
+Mrnd
+interval step for RND network 2
+Manneal
+choose action randomness decay time 100000 (500000 for 6h vs 8z)
+ϵstart
+start prob for choosing random actions 1.0
+ϵfinish
+final prob for choosing random actions 0.05
+TDλ
+ratio to control Q-value update 0.6 (0.3 for 6h vs 8z)
+α
+coefficient for additional updates 1
+β
+max number additional updates 3
+λ
+coefficient for Qi network 0.5

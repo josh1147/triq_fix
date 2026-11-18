@@ -1,0 +1,80 @@
+# --- TriQ (三元Q值) specific parameters ---
+extract_agent_positions: True
+extract_agent_types: True 
+# use epsilon greedy action selector
+action_selector: "epsilon_greedy"
+epsilon_start: 1.0
+epsilon_finish: 0.005
+epsilon_anneal_time: 2000000
+
+runner: "parallel"
+batch_size_run: 16
+buffer_size: 50000
+batch_size: 512
+optimizer: 'adam'
+
+t_max: 18200000
+
+# update the target network every {} episodes
+target_update_interval: 1
+
+# use the TriQ_Learner to train
+mac: "triq_mac"
+agent: "triq_rnn"
+agent_output_type: q
+rnn_hidden_dim: 256
+
+learner: "triq_learner"
+mixer: "qmix"
+mixing_embed_dim: 32
+hypernet_embed: 64
+lr: 0.0002 # Learning rate for agents
+sep_lr: 0.0002
+rnd_lr: 0.0002 # Learning rate for RND
+td_lambda: 1.0
+optimizer: 'adam'
+q_lambda: False
+gamma: 0.999
+
+# rnn layer normalization
+use_layer_norm: False
+
+# orthogonal init for DNN
+use_orthogonal: False
+gain: 0.01
+
+# Priority experience replay
+use_per: False
+per_alpha: 0.6
+per_beta: 0.4
+return_priority: False
+
+# --- TriQ specific parameters ---
+
+# 智能体类型嵌入维度
+agent_type_embed_dim: 16
+
+# 注意力机制参数
+attention_dim: 64
+attention_heads: 4
+use_simple_attention: False  # 使用标准多头注意力
+
+# 局部协调参数
+surrounding_radius: 6.0  # 局部邻域半径（MMM/MMM2推荐 6）
+max_surrounding_agents: 6  # 最大邻域智能体数（与半径匹配）
+
+# RND更新频率
+rnd_update_interval: 2
+
+# 动态权重参数
+
+# 新颖度参数
+max_extra_training: 4
+
+# 环境特定参数 (暂时注释掉，因为StarCraft环境不支持这些参数)
+# env_args:
+#   extract_agent_positions: True
+#   extract_agent_types: True
+#   normalize_positions: True
+
+name: "triq_sep_16_lr0.0005"

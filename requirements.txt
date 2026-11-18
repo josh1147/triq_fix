@@ -1,0 +1,49 @@
+﻿# TriQ / MANGER dependency set
+#
+# Install with uv:
+#     uv venv --python 3.10
+#     uv pip install -r requirements.txt
+#     uv pip install -r requirements-sc2.txt      # on the training box
+#
+# ---------------------------------------------------------------------------
+# READ THIS BEFORE CHANGING ANY PIN
+# ---------------------------------------------------------------------------
+# Two things break this codebase on a modern stack, and neither is obvious:
+#
+#   1. numpy<2 is mandatory.
+#      src/components/action_selectors.py does
+#          from matplotlib.pyplot import xcorr
+#      matplotlib re-exports that name from numpy, and numpy 2.0 deleted
+#      np.xcorr. Under numpy>=2 the import raises and every controller import
+#      dies, so nothing starts.
+#
+#   2. collections.Mapping is referenced in src/main.py:
+#          if isinstance(v, collections.Mapping):
+#      That alias was removed in Python 3.10. As written, the code only runs on
+#      3.9. On 3.10+ it raises AttributeError inside recursive_dict_update
+#      before any training begins.
+#      Run `python check_env.py`; it reports this and tells you the one-line fix
+#      (switch to collections.abc.Mapping) if you want to stay on 3.10+.
+# ---------------------------------------------------------------------------
+# Torch is intentionally unpinned: pick the wheel that matches the host CUDA.
+#     CUDA 12.1:  uv pip install torch --index-url https://download.pytorch.org/whl/cu121
+#     CPU only:   uv pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+# --- core numerics -------------------------------------------------------
+numpy<2
+scipy
+torch
+
+# --- experiment framework ------------------------------------------------
+sacred==0.8.2
+cloudpickle
+pyyaml
+absl-py
+
+# --- plotting / misc -----------------------------------------------------
+matplotlib
+pygame                    # envs/stag_hunt is imported unconditionally by envs/__init__
+tensorboard-logger        # only imported when use_tensorboard is true
+
+# --- dev -----------------------------------------------------------------
+pytest
