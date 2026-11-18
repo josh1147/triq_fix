@@ -21,6 +21,11 @@ pysc2==3.0.0
 # this file alone cannot produce a broken environment.
 numpy<2
 
+# Same reasoning for setuptools: sacred 0.8.2 needs pkg_resources, which
+# setuptools 81 removed. Repeating the pin here means this file is safe to
+# install on its own, or on top of a torch reinstall that bumped setuptools.
+setuptools<81
+
 # SMAC ships the reward/observation wrappers and the map registry. Install from
 # source because there is no PyPI release.
 smac @ git+https://github.com/oxwhirl/smac.git

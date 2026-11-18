@@ -25,9 +25,27 @@
 #      Run `python check_env.py`; it reports this and tells you the one-line fix
 #      (switch to collections.abc.Mapping) if you want to stay on 3.10+.
 # ---------------------------------------------------------------------------
-# Torch is intentionally unpinned: pick the wheel that matches the host CUDA.
-#     CUDA 12.1:  uv pip install torch --index-url https://download.pytorch.org/whl/cu121
-#     CPU only:   uv pip install torch --index-url https://download.pytorch.org/whl/cpu
+# Torch is intentionally unpinned so the CPU-only boxes can install the light
+# wheel. On a GPU box, do NOT let the resolver pick: it will grab whatever is
+# newest on PyPI, which may be built for a CUDA newer than your driver.
+#
+# Measured failure on a driver reporting CUDA 12.8 (version 12080):
+#   plain `torch`            -> 2.14.1+cu130 -> "driver too old", cuda False
+#   --index + cu121          -> silently resolved from PyPI, still cu130
+#   --index-url + aliyun     -> 2.5.1+cu121  -> cuda True
+#
+# So: install torch from a wheel index FIRST, with the version pinned, then
+# install this file. Because torch is already satisfied, the resolver leaves it
+# alone. The Chinese mirror is much faster than download.pytorch.org:
+#
+#   uv pip install torch==2.5.1 \
+#       --index-url https://mirrors.aliyun.com/pytorch-wheels/cu121/
+#
+#   uv pip install -r requirements.txt
+#
+# CPU only:
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cpu
+# ---------------------------------------------------------------------------
 
 # --- core numerics -------------------------------------------------------
 numpy<2
@@ -36,6 +54,11 @@ torch
 
 # --- experiment framework ------------------------------------------------
 sacred==0.8.2
+# sacred 0.8.2 imports pkg_resources, which setuptools 81 removed. `uv venv`
+# creates environments without setuptools at all, so this line is doing double
+# duty: it provides pkg_resources and keeps it below the removal.
+# Symptom if missing: "ModuleNotFoundError: No module named 'pkg_resources'".
+setuptools<81
 cloudpickle
 pyyaml
 absl-py
